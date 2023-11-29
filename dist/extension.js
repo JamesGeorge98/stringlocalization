@@ -28,37 +28,47 @@ var __importStar = (this && this.__importStar) || function (mod) {
     __setModuleDefault(result, mod);
     return result;
 };
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
 Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.deactivate = exports.activate = void 0;
 const vscode = __importStar(__webpack_require__(1));
-const get_selected_text_1 = __importDefault(__webpack_require__(2));
-const vscode_2 = __importDefault(__webpack_require__(1));
 function activate(context) {
     // Use the console to output diagnostic information (console.log) and errors (console.error)
     // This line of code will only be executed once when your extension is activated
     console.log('Congratulations, your extension "stringlocalization" is now active!');
-    console.log("dadada");
-    // The command has been defined in the package.json file
-    // Now provide the implementation of the command with registerCommand
-    // The commandId parameter must match the command field in package.json
     let disposable = vscode.commands.registerCommand('stringlocalization.helloWorld', () => {
-        // The code you place here will be executed every time your command is executed
-        // Display a message box to the user
-        vscode.window.showInformationMessage('Hello World from stringlocalization!');
-        const editor = vscode_2.default.window.activeTextEditor;
-        console.log(editor);
+        let activeEditor = vscode.window.activeTextEditor;
+        if (!activeEditor) {
+            return;
+        }
+        const edit = new vscode.WorkspaceEdit();
+        const document = activeEditor.document;
+        for (let i = 0; i < activeEditor.document.lineCount; i++) {
+            const line = document.lineAt(i);
+            var textRange = new vscode.Range(line.range.start, line.range.end);
+            var wholeText = document.getText(textRange);
+            var lineText = line.text;
+            if (!wholeText.includes(`import 'package:`) && !wholeText.includes(`import "package:`)) {
+                if (lineText.includes(`"`) || lineText.includes(`'`)) {
+                    const match = lineText.match(/["']([^"']*)["']/);
+                    if (match != null && match[1].length > 0) {
+                        let modifiedString = match[1].toLowerCase().replace(/\s+/g, '');
+                        let newString = `AppLocalizations.of(context).${modifiedString}`;
+                        const currentPosition = new vscode.Position(i, 0);
+                        const openingQuoteIndex = lineText.indexOf('"');
+                        const closingQuoteIndex = lineText.lastIndexOf('"') + 1;
+                        if (openingQuoteIndex !== -1 && closingQuoteIndex !== -1) {
+                            const quoteStartPosition = new vscode.Position(currentPosition.line, openingQuoteIndex);
+                            const quoteEndPosition = new vscode.Position(currentPosition.line, closingQuoteIndex);
+                            // const position = new vscode.Position(quoteStartPosition, quoteEndPosition);
+                            edit.replace(document.uri, new vscode.Range(quoteStartPosition, quoteEndPosition), newString);
+                            // edit.replace(document.uri, new vscode.Range(quoteSingleStartPosition, quoteSingleEndPosition), newString);
+                        }
+                    }
+                }
+            }
+        }
+        vscode.workspace.applyEdit(edit);
     });
-    const editor = vscode_2.default.window.activeTextEditor;
-    console.log(editor);
-    if (!editor)
-        return [];
-    const selectedText = editor.document.getText((0, get_selected_text_1.default)(editor));
-    console.log(selectedText);
-    if (selectedText === "")
-        return [];
     context.subscriptions.push(disposable);
 }
 exports.activate = activate;
@@ -72,68 +82,6 @@ exports.deactivate = deactivate;
 /***/ ((module) => {
 
 module.exports = require("vscode");
-
-/***/ }),
-/* 2 */
-/***/ (function(module, exports, __webpack_require__) {
-
-
-var __importDefault = (this && this.__importDefault) || function (mod) {
-    return (mod && mod.__esModule) ? mod : { "default": mod };
-};
-Object.defineProperty(exports, "__esModule", ({ value: true }));
-exports.getSelectedText = void 0;
-const vscode_2 = __importDefault(__webpack_require__(1));
-const openBracket = "(";
-const closeBracket = ")";
-const getSelectedText = (editor) => {
-    const emptySelection = new vscode_2.default.Selection(editor.document.positionAt(0), editor.document.positionAt(0));
-    const language = editor.document.languageId;
-    if (language != "dart")
-        return emptySelection;
-    const line = editor.document.lineAt(editor.selection.start);
-    const lineText = line.text;
-    const openBracketIndex = line.text.indexOf(openBracket, editor.selection.anchor.character);
-    let widgetStartIndex = openBracketIndex > 1
-        ? openBracketIndex - 1
-        : editor.selection.anchor.character;
-    for (widgetStartIndex; widgetStartIndex > 0; widgetStartIndex--) {
-        const currentChar = lineText.charAt(widgetStartIndex);
-        const isBeginningOfWidget = currentChar === openBracket ||
-            (currentChar === " " && lineText.charAt(widgetStartIndex - 1) !== ",");
-        if (isBeginningOfWidget)
-            break;
-    }
-    widgetStartIndex++;
-    if (openBracketIndex < 0) {
-        const commaIndex = lineText.indexOf(",", widgetStartIndex);
-        const bracketIndex = lineText.indexOf(closeBracket, widgetStartIndex);
-        const endIndex = commaIndex >= 0
-            ? commaIndex
-            : bracketIndex >= 0
-                ? bracketIndex
-                : lineText.length;
-        return new vscode_2.default.Selection(new vscode_2.default.Position(line.lineNumber, widgetStartIndex), new vscode_2.default.Position(line.lineNumber, endIndex));
-    }
-    let bracketCount = 1;
-    for (let l = line.lineNumber; l < editor.document.lineCount; l++) {
-        const currentLine = editor.document.lineAt(l);
-        let c = l === line.lineNumber ? openBracketIndex + 1 : 0;
-        for (c; c < currentLine.text.length; c++) {
-            const currentChar = currentLine.text.charAt(c);
-            if (currentChar === openBracket)
-                bracketCount++;
-            if (currentChar === closeBracket)
-                bracketCount--;
-            if (bracketCount === 0) {
-                return new vscode_2.default.Selection(new vscode_2.default.Position(line.lineNumber, widgetStartIndex), new vscode_2.default.Position(l, c + 1));
-            }
-        }
-    }
-    return emptySelection;
-};
-module.exports = getSelectedText;
-
 
 /***/ })
 /******/ 	]);
