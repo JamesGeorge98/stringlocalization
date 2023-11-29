@@ -1,6 +1,6 @@
 {
   "name": "stringlocalization",
-  "displayName": "stringlocalization",
+  "displayName": "String Localization",
   "description": "convert all strings to applocalizations",
   "version": "0.0.1",
   "engines": {
@@ -9,13 +9,14 @@
   "categories": [
     "Other"
   ],
+  "icon":"stringlocalization.png",
   "activationEvents": [],
   "main": "./dist/extension.js",
   "contributes": {
     "commands": [
       {
-        "command": "stringlocalization.helloWorld",
-        "title": "Hello World"
+        "command": "stringlocalization.localization",
+        "title": "String Localization"
       }
     ]
   },
