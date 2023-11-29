@@ -9,10 +9,7 @@ import * as vscode from 'vscode';
 
 export function activate(context: vscode.ExtensionContext) {
 
-	// Use the console to output diagnostic information (console.log) and errors (console.error)
-	// This line of code will only be executed once when your extension is activated
-	console.log('Congratulations, your extension "stringlocalization" is now active!');
-
+	console.log('oh my sunflower , look (0_0) how the world chnages in your magic hours');
 
 
 	let disposable = vscode.commands.registerCommand('stringlocalization.localization', () => {
@@ -101,11 +98,6 @@ export function activate(context: vscode.ExtensionContext) {
 		vscode.workspace.applyEdit(edit);
 
 	});
-
-
-
-
-
 
 	context.subscriptions.push(disposable);
 }

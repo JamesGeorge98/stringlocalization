@@ -32,9 +32,7 @@ Object.defineProperty(exports, "__esModule", ({ value: true }));
 exports.deactivate = exports.activate = void 0;
 const vscode = __importStar(__webpack_require__(1));
 function activate(context) {
-    // Use the console to output diagnostic information (console.log) and errors (console.error)
-    // This line of code will only be executed once when your extension is activated
-    console.log('Congratulations, your extension "stringlocalization" is now active!');
+    console.log('oh my sunflower , look (0_0) how the world chnages in your magic hours');
     let disposable = vscode.commands.registerCommand('stringlocalization.localization', () => {
         let activeEditor = vscode.window.activeTextEditor;
         if (!activeEditor) {
